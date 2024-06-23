@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prédiction du Diabète</title>
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            color: #333;
+            background-color: #f0f0f0;
+        }
+        .main {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+        }
+        h1 {
+            color: #0086b3;
+            font-size: 30px;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        table td {
+            padding: 8px;
+        }
+        table td:first-child {
+            text-align: right;
+            padding-right: 10px;
+            font-weight: bold;
+        }
+        table td:last-child {
+            text-align: left;
+        }
+        input[type=text] {
+            width: calc(100% - 20px); /* ajustement pour le padding */
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        input[type=submit], input[type=button] {
+            background-color: #4dc3ff;
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            margin-top: 15px;
+            margin-right: 10px;
+        }
+        input[type=submit]:hover, input[type=button]:hover {
+            background-color: #3399ff;
+        }
+        .result-positive {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 15px;
+            color: red;
+        }
+        .result-negative {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 15px;
+            color: green;
+        }
+        .probability {
+            font-size: 18px;
+            margin-top: 10px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <h1>Veuillez Entrer Vos Informations</h1>
+        <form id="predictionForm" action="{% url 'predict' %}" method="GET">
+            <table>
+                <tr>
+                    <td>Grossesses :</td>
+                    <td><input required type="text" name="n1" value="{{ request.GET.n1 }}"></td>
+                </tr>
+                <tr>
+                    <td>Glucose :</td>
+                    <td><input required type="text" name="n2" value="{{ request.GET.n2 }}"></td>
+                </tr>
+                <tr>
+                    <td>Pression Artérielle :</td>
+                    <td><input required type="text" name="n3" value="{{ request.GET.n3 }}"></td>
+                </tr>
+                <tr>
+                    <td>Épaisseur de la Peau :</td>
+                    <td><input required type="text" name="n4" value="{{ request.GET.n4 }}"></td>
+                </tr>
+                <tr>
+                    <td>Insuline :</td>
+                    <td><input required type="text" name="n5" value="{{ request.GET.n5 }}"></td>
+                </tr>
+                <tr>
+                    <td>IMC :</td>
+                    <td><input required type="text" name="n6" value="{{ request.GET.n6 }}"></td>
+                </tr>
+                <tr>
+                    <td>Pédigrée du Diabète :</td>
+                    <td><input required type="text" name="n7" value="{{ request.GET.n7 }}"></td>
+                </tr>
+                <tr>
+                    <td>Âge :</td>
+                    <td><input required type="text" name="n8" value="{{ request.GET.n8 }}"></td>
+                </tr>
+            </table>
+            <input type="button" value="Réinitialiser le Formulaire" onclick="resetForm()">
+            <input type="submit" value="Soumettre">
+        </form>
+        {% if result and result != '' %}
+            <div class="result-{{ result|lower }}">Résultat : {{ result }}</div>
+        {% endif %}
+        {% if probability and probability != '' %}
+            <div class="probability">Probabilité de résultat : {{ probability|floatformat:"2" }}%</div>
+        {% endif %}
+    </div>
+
+    <script>
+        function resetForm() {
+            document.getElementById('predictionForm').reset();
+            const inputs = document.querySelectorAll('#predictionForm input[type="text"]');
+            inputs.forEach(input => input.value = '');
+
+            document.querySelectorAll('.result-positive, .result-negative, .probability').forEach(element => {
+                element.style.display = 'none';
+            });
+        }
+
+        // Hide result and probability if no GET parameters are present
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (!urlParams.toString()) {
+                document.querySelectorAll('.result-positive, .result-negative, .probability').forEach(element => {
+                    element.style.display = 'none';
+                });
+            }
+        };
+    </script>
+</body>
+</html>
